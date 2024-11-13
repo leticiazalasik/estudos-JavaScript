@@ -1,0 +1,31 @@
+<div id="avo" style="padding: 20px; background: #f0f0f0">
+    Avô
+    <div id="pai" style="padding: 20px; background: #e0e0e0">
+      Pai
+      <div id="filho" style="padding: 20px; background: #d0d0d0">Filho</div>
+    </div>
+  </div>
+  
+  <div id="log"></div>
+  
+  <script>
+    function logEvent(elementName, phase) {
+      const log = document.getElementById('log');
+      log.innerHTML += `<p>Elemento: ${elementName} - Fase: ${phase}</p>`;
+    }
+  
+    window.addEventListener('DOMContentLoaded', (event) => {
+      document.getElementById('avo').addEventListener('click', function() {
+          logEvent('Avô', 'Capturing');
+      }, true);
+  
+      document.getElementById('pai').addEventListener('click', function() {
+          logEvent('Pai', 'Capturing');
+      }, true);
+  
+      document.getElementById('filho').addEventListener('click', function() {
+          logEvent('Filho', 'Capturing');
+      }, true);
+    });
+  </script>
+  
