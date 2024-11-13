@@ -1,0 +1,49 @@
+<div id="app">
+<input id="titulo" placeholder="Titulo">
+<input id="conteudo" placeholder="Conteúdo">
+<button onclick="adicionarNota()">Adicionar</button>
+<ul id="listaNotas"></ul>
+</div>
+  
+    <script>
+
+function mudarCor(botao) {
+    // Altera a cor do elemento pai (que é o 'nota')
+    const elemento = botao.parentElement;
+    elemento.style.backgroundColor = elemento.style.backgroundColor === 'lightblue' ? '' : 'lightblue';
+}
+
+function destacarTexto(botao) {
+    const elemento = botao.parentElement;
+    elemento.style.fontWeight = elemento.style.fontWeight === 'bold' ? '' : 'bold';
+    elemento.style.fontStyle = elemento.style.fontStyle === 'italic' ? '' : 'italic';
+}
+
+  function adicionarNota() {
+      const titulo = document.getElementById('titulo').value;
+      const conteudo = document.getElementById('conteudo').value;
+            
+      const lista = document.getElementById('listaNotas');
+      const nota = document.createElement('li');
+      
+      nota.innerHTML = `
+          <div>${titulo} (${conteudo})</div>
+          <button onclick="mudarCor(this)">
+        Mudar Cor>
+        </button>
+        <button onclick="destacarTexto(this)">
+        Destacar texto>
+        </button>
+          <button onclick="this.parentElement.remove()">
+              Excluir
+          </button>
+      `;
+      
+      lista.appendChild(nota);
+      
+      // Limpar campos
+      document.getElementById('titulo').value = '';
+      document.getElementById('conteudo').value = '';
+  }
+  
+    </script>

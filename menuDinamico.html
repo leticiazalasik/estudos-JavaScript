@@ -1,0 +1,79 @@
+<div id="app">
+    <!-- Campos de entrada para adicionar um item de menu -->
+    <input id="nomeMenu" placeholder="Nome do Menu">
+    <button onclick="adicionarItemMenu()">Adicionar Item de Menu</button>
+
+    <ul id="listaMenu"></ul>
+</div>
+
+<script>
+// Função para expandir ou recolher o menu
+function expandirRecolher(botao) {
+    const submenu = botao.nextElementSibling;  // Submenu está logo após o botão
+    if (submenu.style.display === 'none' || submenu.style.display === '') {
+        submenu.style.display = 'block';  // Expandir
+    } else {
+        submenu.style.display = 'none';  // Recolher
+    }
+}
+
+// Função para destacar o texto (colocar em negrito e itálico)
+function destacarTexto(botao) {
+    const elemento = botao.parentElement;
+    elemento.style.fontWeight = elemento.style.fontWeight === 'bold' ? '' : 'bold';
+    elemento.style.fontStyle = elemento.style.fontStyle === 'italic' ? '' : 'italic';
+}
+
+// Função para excluir o item do menu
+function excluirItem(botao) {
+    const itemMenu = botao.parentElement;
+    itemMenu.remove();  // Remove o item de menu
+}
+
+// Função para adicionar um novo item ao menu
+function adicionarItemMenu() {
+    const nomeMenu = document.getElementById('nomeMenu').value;  // Pega o nome do menu
+    if (!nomeMenu) return;  // Se não foi digitado nada, não adiciona
+    
+    const menu = document.getElementById('listaMenu');  // Lista do menu
+    const itemMenu = document.createElement('li');
+    
+    // Adiciona o nome do menu digitado e cria os itens do menu
+    itemMenu.innerHTML = `
+        <span>${nomeMenu}</span>
+        <button onclick="expandirRecolher(this)">Expandir/Subir</button>
+        <ul style="display: none;">
+            <li>
+                <input class="subitemInput" placeholder="Nome do Subitem">
+                <button onclick="adicionarSubitem(this)">Adicionar Subitem</button>
+            </li>
+        </ul>
+        <button onclick="destacarTexto(this)">Destacar</button>
+        <button onclick="excluirItem(this)">Excluir</button>
+    `;
+    menu.appendChild(itemMenu);
+    
+    // Limpa o campo de input
+    document.getElementById('nomeMenu').value = '';
+}
+
+// Função para adicionar um subitem ao menu
+function adicionarSubitem(botao) {
+    const nomeSubitem = botao.previousElementSibling.value;  // Pega o nome do subitem
+    if (!nomeSubitem) return;  // Se não foi digitado nada, não adiciona
+    
+    const submenu = botao.parentElement.parentElement;  // Pega o submenu (ul)
+    const subitem = document.createElement('li');
+    
+    subitem.innerHTML = `
+        ${nomeSubitem} 
+        <button onclick="destacarTexto(this)">Destacar</button>
+        <button onclick="excluirItem(this)">Excluir</button>
+    `;
+    
+    submenu.appendChild(subitem);
+    
+    // Limpa o campo de input do subitem
+    botao.previousElementSibling.value = '';
+}
+</script>

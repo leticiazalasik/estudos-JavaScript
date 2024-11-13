@@ -1,0 +1,35 @@
+// <div id="app">
+  //   <input id="nome" placeholder="Nome">
+  //   <input id="email" placeholder="Email">
+  //   <button onclick="adicionarContato()">Adicionar</button>
+  //   <ul id="listaContatos"></ul>
+  // </div>
+
+  <script>
+function adicionarContato() {
+    const nome = document.getElementById('nome').value;
+    const email = document.getElementById('email').value;
+    
+    if (!nome || !email) return;
+    
+    const lista = document.getElementById('listaContatos');
+    const contato = document.createElement('li');
+    
+    contato.innerHTML = `
+        <span>${nome} (${email})</span>
+        <button onclick="this.parentElement.classList.toggle('favorito')">
+            ★
+        </button>
+        <button onclick="this.parentElement.remove()">
+            Excluir
+        </button>
+    `;
+    
+    lista.appendChild(contato);
+    
+    // Limpar campos
+    document.getElementById('nome').value = '';
+    document.getElementById('email').value = '';
+}
+
+  </script>
