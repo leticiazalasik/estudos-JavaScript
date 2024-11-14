@@ -1,0 +1,33 @@
+<div id="avo" style="padding: 20px; background: #f0f0f0;">
+    Avô
+    <div id="pai" style="padding: 20px; background: #e0e0e0;">
+        Pai
+        <div id="filho" style="padding: 20px; background: #d0d0d0;">
+            Filho
+        </div>
+    </div>
+</div>
+
+<div id="log"></div>
+
+<script>
+const log = document.getElementById('log');
+
+function logEvent(elemento, fase) {
+    log.innerHTML += `<div>Elemento: ${elemento} - Fase: ${fase}</div>`;
+}
+
+// Demonstração de Bubbling (terceiro parâmetro false ou omitido)
+document.getElementById('filho').addEventListener('click', function() {
+    logEvent('Filho', 'Bubbling');
+});
+
+document.getElementById('pai').addEventListener('click', function() {
+    logEvent('Pai', 'Bubbling');
+});
+
+document.getElementById('avo').addEventListener('click', function() {
+    logEvent('Avô', 'Bubbling');
+});
+
+</script>
