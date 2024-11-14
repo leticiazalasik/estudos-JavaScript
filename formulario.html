@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulário com Auto-save</title>
+    <style>
+        .form-group { margin: 15px 0; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Formulário com Auto-save</h1>
+        <form id="meuForm" onsubmit="enviarFormulario(event)">
+            <div class="form-group">
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" onchange="salvarProgresso(event)">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" onchange="salvarProgresso(event)">
+            </div>
+
+            <div class="form-group">
+                <label for="mensagem">Mensagem:</label>
+                <textarea id="mensagem" onchange="salvarProgresso(event)"></textarea>
+            </div>
+
+            <button type="submit">Enviar</button>
+            <button type="button" onclick="limparFormulario()">Limpar</button>
+        </form>
+    </div>
+
+    <script>
+        function salvarProgresso(evento) {
+            const campo = evento.target;
+            sessionStorage.setItem(`form_${campo.id}`, campo.value);
+        }
+
+        function recuperarProgresso() {
+            const campos = document.querySelectorAll('input, textarea');
+            campos.forEach(campo => {
+                const valorSalvo = sessionStorage.getItem(`form_${campo.id}`);
+                if (valorSalvo) campo.value = valorSalvo;
+            });
+        }
+
+        function limparFormulario() {
+            document.getElementById('meuForm').reset();
+            Object.keys(sessionStorage).forEach(key => {
+                if (key.startsWith('form_')) {
+                    sessionStorage.removeItem(key);
+                }
+            });
+        }
+
+        function enviarFormulario(evento) {
+            evento.preventDefault();
+            alert('Formulário enviado!');
+            limparFormulario();
+        }
+
+        // Recuperar dados ao carregar a página
+        recuperarProgresso();
+    </script>
+</body>
+</html>
+
