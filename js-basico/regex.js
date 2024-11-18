@@ -45,4 +45,7 @@ function criarPost() {
     };
 
     xhr.send(JSON.stringify(data));
+
+   
 }
+
