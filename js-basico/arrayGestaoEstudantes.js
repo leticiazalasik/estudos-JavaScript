@@ -52,3 +52,14 @@ console.log(`Nome: ${estudante.nome} ${estudante.media}`)
 listarAprovados(estudantes);
 
 // 4. Adicione uma nova nota para cada estudante
+function adicionarNovaNota(estudantes){
+
+    const estudantesCopia = JSON.parse(JSON.stringify(estudantes));
+    estudantesCopia.forEach(estudante => {
+        estudante.notas.push(7); 
+        console.log(estudante);
+    });
+
+}
+
+adicionarNovaNota(estudantes);
