@@ -1,5 +1,4 @@
 .hero-section {
-    background-color: #f8f9fa;
     min-height: 400px;
 }
 .feature-card {
@@ -9,12 +8,50 @@
     transform: translateY(-5px);
 }
 
+.carousel {
+width: 100%;
+}
+
 .carousel-item{
     border: solid black;
-    width: 90%;
     background-color: aqua;
 }
 
+.carousel-container{
+align-items: center;
+}
+
+.container{
+background-color: rgba(173, 226, 226, 0.815);
+width: 100%;             /* Faz o container ocupar toda a largura da tela */
+}
+
+.bem-vindo{
+padding: 2%;    
+}
+
+.btn-bem-vindo{
+ background-color:  rgb(79, 138, 138);   
+ border: #333;
+}
+  
+.tela{
+    background-color: rgba(179, 228, 228, 0.418) !important;
+  }
+
+  .hero-section, .navbar, .navbar-expand-lg{
+    background-color: rgba(196, 235, 235, 0.089) !important;
+    
+  }
+
+  .navbar .container{
+    padding: 2%;
+  }
+
+  section .container{
+    padding: 3%;
+  }
+ 
       footer{
         background-color: bisque;
       }

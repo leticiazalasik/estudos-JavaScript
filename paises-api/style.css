@@ -1,0 +1,10 @@
+.country-card {
+    transition: transform 0.3s;
+}
+.country-card:hover {
+    transform: translateY(-5px);
+}
+.flag-img {
+    height: 150px;
+    object-fit: cover;
+}
