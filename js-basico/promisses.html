@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Dados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Dashboard de Dados</h1>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Usuários</h5>
+                        <div id="usuarios-container">Carregando...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Posts</h5>
+                        <div id="posts-container">Carregando...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Todos</h5>
+                        <div id="todos-container">Carregando...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-3">
+            <button id="atualizar" class="btn btn-primary">Atualizar Dados</button>
+        </div>
+    </div>
+
+    <script>
+    // Definindo a classe Dashboard, que vai controlar a lógica da aplicação
+    class Dashboard {
+        // O construtor inicializa a baseUrl e chama o método de inicialização
+        constructor() {
+            this.baseUrl = 'https://jsonplaceholder.typicode.com'; // Definindo a URL base da API
+            this.inicializar(); // Chama a função de inicialização
+        }
+    
+        // Função assíncrona que é chamada na inicialização para configurar elementos e eventos
+        async inicializar() {
+            this.bindElements(); // Inicializa os elementos do DOM
+            this.bindEvents();   // Configura os eventos
+            await this.carregarDados(); // Carrega os dados da API
+        }
+    
+        // Função que associa as referências dos elementos DOM às variáveis da classe
+        bindElements() {
+            this.usuariosContainer = document.getElementById('usuarios-container'); // Referência ao container de usuários
+            this.postsContainer = document.getElementById('posts-container'); // Referência ao container de posts
+            this.todosContainer = document.getElementById('todos-container'); // Referência ao container de todos
+            this.btnAtualizar = document.getElementById('atualizar'); // Referência ao botão de atualizar
+        }
+    
+        // Função que adiciona eventos aos elementos
+        bindEvents() {
+            // Quando o botão de "Atualizar Dados" for clicado, a função carregarDados será chamada
+            this.btnAtualizar.addEventListener('click', () => this.carregarDados());
+        }
+    
+        // Função assíncrona que carrega os dados da API
+        async carregarDados() {
+            try {
+                this.mostrarCarregando(); // Exibe o indicador de carregamento
+    
+                // Fazendo múltiplas requisições simultâneas com Promise.all
+                const [usuarios, posts, todos] = await Promise.all([
+                    fetch(`${this.baseUrl}/users`).then(r => r.json()), // Requisição para obter usuários
+                    fetch(`${this.baseUrl}/posts`).then(r => r.json()), // Requisição para obter posts
+                    fetch(`${this.baseUrl}/todos`).then(r => r.json())  // Requisição para obter todos
+                ]);
+    
+                this.renderizarDados(usuarios, posts, todos); // Quando os dados são carregados, chama renderizarDados para exibir os resultados
+            } catch (erro) {
+                this.mostrarErro(erro); // Se houver um erro, chama mostrarErro
+            }
+        }
+    
+        // Função que exibe um indicador de carregamento nos três containers
+        mostrarCarregando() {
+            [this.usuariosContainer, this.postsContainer, this.todosContainer] // Itera sobre os containers
+                .forEach(container => {
+                    container.innerHTML = '<div class="spinner-border" role="status"></div>'; // Exibe um spinner de carregamento
+                });
+        }
+    
+        // Função que renderiza os dados nos containers após o carregamento
+        renderizarDados(usuarios, posts, todos) {
+            // Renderizando os dados de usuários
+            this.usuariosContainer.innerHTML = `
+                <p>Total de usuários: ${usuarios.length}</p>
+                <ul class="list-group">
+                    ${usuarios.slice(0, 5).map(user => // Mapeia os 5 primeiros usuários
+                        `<li class="list-group-item">${user.name}</li>` // Exibe o nome de cada usuário
+                    ).join('')} 
+                </ul>
+            `;
+    
+            // Renderizando os dados de posts
+            this.postsContainer.innerHTML = `
+                <p>Total de posts: ${posts.length}</p>
+                <ul class="list-group">
+                    ${posts.slice(0, 5).map(post => // Mapeia os 5 primeiros posts
+                        `<li class="list-group-item">${post.title.slice(0, 30)}...</li>` // Exibe o título de cada post, limitado a 30 caracteres
+                    ).join('')}
+                </ul>
+            `;
+    
+            // Renderizando os dados de todos (tarefas)
+            this.todosContainer.innerHTML = `
+                <p>Total de todos: ${todos.length}</p>
+                <ul class="list-group">
+                    ${todos.slice(0, 5).map(todo => // Mapeia os 5 primeiros todos (tarefas)
+                        `<li class="list-group-item ${todo.completed ? 'list-group-item-success' : ''}">
+                            ${todo.title.slice(0, 30)}...
+                        </li>` // Exibe o título da tarefa, limitado a 30 caracteres e marca como concluído se a tarefa estiver completa
+                    ).join('')}
+                </ul>
+            `;
+        }
+    
+        // Função que exibe uma mensagem de erro se houver falha ao carregar os dados
+        mostrarErro(erro) {
+            [this.usuariosContainer, this.postsContainer, this.todosContainer] // Itera sobre os containers
+                .forEach(container => {
+                    container.innerHTML = `
+                        <div class="alert alert-danger">
+                            Erro ao carregar dados: ${erro.message} // Exibe a mensagem de erro
+                        </div>
+                    `;
+                });
+        }
+    }
+    
+    // Inicializa a classe Dashboard, criando uma nova instância da mesma
+    new Dashboard();
+    
+    </script>
+</body>
+</html>
