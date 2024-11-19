@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debounce com Input</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        input {
+            padding: 8px;
+            font-size: 16px;
+            width: 100%;
+            max-width: 400px;
+        }
+        p {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Testando Debounce no Input</h1>
+    <label for="search">Digite algo:</label>
+    <input type="text" id="search" placeholder="Digite e espere...">
+
+    <p id="output"></p>
+
+    <script>
+        // Função de debounce: controla o tempo de espera entre as chamadas da função
+        function buscarInfos(func, wait) {
+            let timeout; // Variável para armazenar o temporizador
+            return function executedFunction(...args) {
+                // Função interna que será executada após o tempo de espera
+                const later = () => {
+                    clearTimeout(timeout); // Limpa o temporizador anterior, se houver
+                    func(...args); // Chama a função original passando os argumentos
+                };
+                clearTimeout(timeout); // Limpa qualquer temporizador ativo antes de configurar um novo
+                timeout = setTimeout(later, wait); // Configura um novo temporizador
+            };
+        }
+    
+        // Função que será chamada para processar o input
+        const processarInput = buscarInfos(() => {
+            const inputElement = document.getElementById('search'); // Pega o elemento de input (campo de texto)
+            const outputElement = document.getElementById('output'); // Pega o elemento onde vamos exibir o texto
+            outputElement.textContent = `Você digitou: ${inputElement.value}`; // Exibe o texto digitado pelo usuário
+        }, 1000); // A função será executada após 1 segundo (1000ms) de pausa sem novos inputs
+    
+        // Evento para capturar o input: chama a função processarInput quando o usuário digita
+        const inputElement = document.getElementById('search'); // Pega o campo de entrada de texto
+        inputElement.addEventListener('input', processarInput); // Adiciona o ouvinte de evento para o campo de texto
+    </script>
+    
+</body>
+</html>
