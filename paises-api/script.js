@@ -3,7 +3,7 @@ const countriesContainer = document.getElementById('countriesContainer');
 const loading = document.getElementById('loading');
 const regionDropdown = document.getElementById('regionDropdown');
 
-
+// Função para buscar países por nome
 async function searchCountries(searchTerm) {
     try {
         loading.classList.remove('d-none');
@@ -23,9 +23,8 @@ async function searchCountries(searchTerm) {
     }
 }
 
+// Função para criar cartão de país
 function createCountryCard(country) {
-    const languages = country.languages ? Object.values(country.languages).join(', ') : 'N/A';
-    const modalId = `modal-${country.cca3}`;
     return `
         <div class="col-md-4">
             <div class="card country-card h-100">
@@ -37,45 +36,67 @@ function createCountryCard(country) {
                         <strong>População:</strong> ${country.population.toLocaleString()}<br>
                         <strong>Região:</strong> ${country.region}
                     </p>
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-primary" onclick="openModal('${country.cca3}')">
+                        Detalhes
+                    </button>
                 </div>
-
-                <!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#${modalId}">
-  Launch modal
-</button>
-
-<!-- Modal -->
-<div class="modal fade" id="${modalId}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="${modalId}" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="${modalId}">${country.name.common}</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-      Língua(s): ${languages}
-      Moeda: ${country.currencies.name}
-      Países vzinhos:
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Understood</button>
-      </div>
-    </div>
-  </div>
-</div>
             </div>
         </div>
     `;
 }
 
+// Função para abrir modal dinamicamente
+function openModal(countryCode) {
+    const country = countries.find(c => c.cca3 === countryCode);
+    const modalId = `modal-${country.cca3}`;
+    const languages = country.languages ? Object.values(country.languages).join(', ') : 'N/A';
+    const modalHtml = `
+        <div class="modal fade" id="${modalId}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="${modalId}-label" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="${modalId}-label">${country.name.common}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Língua(s): ${languages}<br>
+                        Moeda: ${country.currencies ? Object.values(country.currencies).map(curr => curr.name).join(', ') : 'N/A'}<br>
+                        Países vizinhos: ${country.borders ? country.borders.join(', ') : 'N/A'}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Understood</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Append the modal to the body
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    // Show the modal
+    const myModal = new bootstrap.Modal(document.getElementById(modalId));
+    myModal.show();
+
+    // Add event listener to remove the modal from DOM after hiding
+    document.getElementById(modalId).addEventListener('hidden.bs.modal', function () {
+        this.remove();
+    });
+}
+
+// Array to store the fetched countries data
+let countries = [];
+
+// Atualizar a lógica de busca de países para armazenar os dados no array global
 let debounceTimeout;
 searchInput.addEventListener('input', (e) => {
     clearTimeout(debounceTimeout);
     debounceTimeout = setTimeout(async () => {
         const searchTerm = e.target.value.trim();
         if (searchTerm.length >= 2) {
-            const countries = await searchCountries(searchTerm);
+            countries = await searchCountries(searchTerm);
             countriesContainer.innerHTML = countries
                 .map(country => createCountryCard(country))
                 .join('');
@@ -113,39 +134,24 @@ dropdownItems.forEach(item => {
         document.getElementById('regionDropdown').textContent = `Região: ${regionName}`;
 
         // Chama a função para buscar países da região
-        const countries = await searchByRegion(selectedRegion);
+        countries = await searchByRegion(selectedRegion);
         countriesContainer.innerHTML = countries
             .map(country => createCountryCard(country))
             .join('');
     });
 });
 
-
-
+// Eventos de depuração do modal
 document.addEventListener('DOMContentLoaded', () => {
     const modals = document.querySelectorAll('.modal');
+
     modals.forEach(modal => {
-        new bootstrap.Modal(modal); // Inicializa manualmente os modais
+        modal.addEventListener('shown.bs.modal', () => {
+            console.log(`Modal ${modal.id} is shown`);
+        });
+
+        modal.addEventListener('hidden.bs.modal', () => {
+            console.log(`Modal ${modal.id} is hidden`);
+        });
     });
 });
-
-// Forçar fechamento do modal ao clicar nos botões de fechar
-const closeButtons = document.querySelectorAll('[data-bs-dismiss="modal"]');
-closeButtons.forEach(button => {
-    button.addEventListener('click', (event) => {
-        const modal = button.closest('.modal');
-        const modalInstance = bootstrap.Modal.getInstance(modal);
-        if (modalInstance) {
-            modalInstance.hide();  // Força o fechamento do modal
-        }
-    });
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    const modals = document.querySelectorAll('.modal');
-    modals.forEach(modal => {
-        const modalInstance = bootstrap.Modal.getInstance(modal);
-        console.log(modalInstance); // Verifique se a instância está sendo obtida corretamente
-    });
-});
-
