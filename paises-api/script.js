@@ -38,7 +38,7 @@ function createCountryCard(country) {
                     </p>
                     <!-- Button trigger modal -->
                     <button type="button" class="btn btn-primary" onclick="openModal('${country.cca3}')">
-                        Detalhes
+                        Launch modal
                     </button>
                 </div>
             </div>
@@ -47,10 +47,35 @@ function createCountryCard(country) {
 }
 
 // Função para abrir modal dinamicamente
-function openModal(countryCode) {
-    const country = countries.find(c => c.cca3 === countryCode);
+// Função para abrir modal dinamicamente
+async function openModal(countryCode) {
+    // Encontra o país na lista local 'countries'
+    let country = countries.find(c => c.cca3 === countryCode);
+
+    // Caso o país não esteja em 'countries', busca na API
+    if (!country) {
+        try {
+            const response = await fetch(`https://restcountries.com/v3.1/alpha/${countryCode}`);
+            const data = await response.json();
+            country = data[0];
+        } catch (error) {
+            console.error("Erro ao buscar dados do país:", error);
+            alert("Não foi possível carregar os dados do país.");
+            return;
+        }
+    }
+
     const modalId = `modal-${country.cca3}`;
     const languages = country.languages ? Object.values(country.languages).join(', ') : 'N/A';
+
+    // Monta a lista de vizinhos
+    const neighbors = country.borders
+        ? country.borders.map(border => {
+            const neighbor = countries.find(c => c.cca3 === border);
+            return `<a href="#" class="neighbor-link" data-code="${border}">${neighbor ? neighbor.name.common : border}</a>`;
+        })
+        : ['N/A'];
+
     const modalHtml = `
         <div class="modal fade" id="${modalId}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="${modalId}-label" aria-hidden="true">
             <div class="modal-dialog">
@@ -62,29 +87,61 @@ function openModal(countryCode) {
                     <div class="modal-body">
                         Língua(s): ${languages}<br>
                         Moeda: ${country.currencies ? Object.values(country.currencies).map(curr => curr.name).join(', ') : 'N/A'}<br>
-                        Países vizinhos: ${country.borders ? country.borders.join(', ') : 'N/A'}
+                        Países vizinhos: ${neighbors.join(', ')}
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Understood</button>
                     </div>
                 </div>
             </div>
         </div>
     `;
 
-    // Append the modal to the body
+    // Adiciona o modal ao DOM
     document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-    // Show the modal
+    // Mostra o modal
     const myModal = new bootstrap.Modal(document.getElementById(modalId));
     myModal.show();
 
-    // Add event listener to remove the modal from DOM after hiding
+    // Remove o modal do DOM ao fechar
     document.getElementById(modalId).addEventListener('hidden.bs.modal', function () {
         this.remove();
     });
+
+    // Adiciona evento aos links de vizinhos
+    document.querySelectorAll('.neighbor-link').forEach(link => {
+        link.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const code = e.target.dataset.code;
+
+            // Fecha o modal atual
+            myModal.hide();
+
+            // Substitui o card atual pelo novo país clicado
+            const selectedCountry = countries.find(c => c.cca3 === code);
+
+            // Se não encontrou nos países armazenados, busca na API
+            if (!selectedCountry) {
+                try {
+                    const response = await fetch(`https://restcountries.com/v3.1/alpha/${code}`);
+                    const data = await response.json();
+                    countriesContainer.innerHTML = createCountryCard(data[0]);
+                } catch (error) {
+                    console.error("Erro ao buscar país vizinho:", error);
+                    return;
+                }
+            } else {
+                // Atualiza o card com o país vizinho
+                countriesContainer.innerHTML = createCountryCard(selectedCountry);
+            }
+        });
+    });
 }
+
+
+
+
 
 // Array to store the fetched countries data
 let countries = [];
@@ -138,20 +195,5 @@ dropdownItems.forEach(item => {
         countriesContainer.innerHTML = countries
             .map(country => createCountryCard(country))
             .join('');
-    });
-});
-
-// Eventos de depuração do modal
-document.addEventListener('DOMContentLoaded', () => {
-    const modals = document.querySelectorAll('.modal');
-
-    modals.forEach(modal => {
-        modal.addEventListener('shown.bs.modal', () => {
-            console.log(`Modal ${modal.id} is shown`);
-        });
-
-        modal.addEventListener('hidden.bs.modal', () => {
-            console.log(`Modal ${modal.id} is hidden`);
-        });
     });
 });
